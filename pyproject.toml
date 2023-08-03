@@ -1,8 +1,37 @@
 [build-system]
-requires = [
-"setuptools", "wheel", "pip",
-"torch==1.11.0; python_version=='3.9'",
-"torchvision>=0.9.1; python_version=='3.9'",
-"imageio", "imageio-ffmpeg", "matplotlib",
-"configargparse", "tensorboard>=2.0", "tqdm", "opencv-python"
+requires = ["setuptools", "setuptools-scm"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "nerf-pytorch"
+requires-python = ">=3.9"
+authors = [
+    {name = "waczyjoan"},
 ]
+description="Python library."
+classifiers=[
+        "Programming Language :: Python :: 3",
+        "License :: OSI Approved :: GNU General Public License v3 (GPLv3)",
+        "Operating System :: OS Independent",
+]
+version="0.0.1"
+dynamic = ["readme"]
+dependencies = [
+        "torch==1.11.0",
+        "torchvision>=0.9.1",
+        "imageio",
+        "imageio-ffmpeg",
+        "matplotlib",
+        "configargparse",
+        "tensorboard",
+        "tqdm",
+        "opencv-python"
+    ]
+
+
+[tool.setuptools.dynamic]
+version = {attr = "nerf-pytorch.VERSION"}
+readme = {file = ["README.md"]}
+
+[tool.setuptools.packages]
+find = {}
