@@ -17,7 +17,7 @@ classifiers=[
 version="0.0.1"
 dynamic = ["readme"]
 dependencies = [
-        "torch==1.11.0",
+        "torch>=1.11.0",
         "torchvision>=0.9.1",
         "imageio",
         "imageio-ffmpeg",
