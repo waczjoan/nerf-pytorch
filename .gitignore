@@ -7,3 +7,7 @@
 *.dae
 data/*
 logs/*
+.venv
+.tox
+.idea
+*.egg-info/
