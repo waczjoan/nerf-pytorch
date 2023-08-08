@@ -41,7 +41,30 @@ def train():
             args.half_res,
             args.testskip,
             args.white_bkgd,
-            args.datadir
+            args.datadir,
+            args.multires,
+            args.i_embed,
+            args.multires_views,
+            args.netchunk,
+            args.lrate,
+            args.lrate_decay,
+            args.use_viewdirs,
+            args.N_importance,
+            args.netdepth,
+            args.netwidth,
+            args.netdepth_fine,
+            args.netwidth_fine,
+            args.ft_path,
+            args.perturb,
+            args.raw_noise_std,
+            args.N_samples,
+            args.lindisp,
+            args.precrop_iters,
+            args.precrop_frac,
+            args.i_weights,
+            args.i_testset,
+            args.i_video,
+            args.i_print
         )
     elif dataset_type == "LINEMOD":
         trainer = LinemodTrainer()
@@ -51,16 +74,18 @@ def train():
         raise f'Unknown dataset type {dataset_type} exiting'
 
     hwf, poses, i_test, i_val, i_train, images = trainer.load_data()
+    render_poses = None
+
     if trainer.render_test:
         render_poses = np.array(poses[i_test])
         render_poses = torch.Tensor(render_poses).to(trainer.device)
 
     hwf = trainer.cast_intrinsics_to_right_types(hwf=hwf)
     trainer.create_log_dir_and_copy_the_config_file()
-    optimizer = trainer.create_nerf_model()
+    optimizer, render_kwargs_train, render_kwargs_test = trainer.create_nerf_model()
 
     if render_only:
-        trainer.render(render_test, images, i_test, render_poses, hwf)
+        trainer.render(render_test, images, i_test, render_poses, hwf, render_kwargs_test)
         return render_only
 
     images, poses, rays_rgb, i_batch = trainer.prepare_raybatch_tensor_if_batching_random_rays(
@@ -85,7 +110,7 @@ def train():
         )
 
         trans, loss, psnr, psnr0 = trainer.core_optimization_loop(
-            optimizer,
+            optimizer, render_kwargs_train,
             batch_rays, i, target_s,
         )
 
@@ -99,7 +124,7 @@ def train():
             i_test,
             images,
             loss,
-            psnr
+            psnr, render_kwargs_train, render_kwargs_test
         )
 
         trainer.global_step += 1
