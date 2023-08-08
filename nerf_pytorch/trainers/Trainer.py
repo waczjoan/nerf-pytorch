@@ -56,7 +56,7 @@ class Trainer:
         self.use_batching = not self.no_batching
         self.datadir = datadir
         self.multires = multires
-        self.i_embed = i_embed,
+        self.i_embed = i_embed
         self.multires_views = multires_views
         self.netwidth_fine = netwidth_fine
         self.netchunk = netchunk
