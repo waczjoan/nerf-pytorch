@@ -1,6 +1,3 @@
-import numpy as np
-import time
-import torch
 from tqdm import trange
 
 
@@ -10,19 +7,49 @@ from nerf_pytorch.trainers.deepvoxels import DeepvoxelsTrainer
 from nerf_pytorch.trainers.Linemod import LinemodTrainer
 from nerf_pytorch.utils import *
 
-#def train(
-#    dataset_type,
-#    render_only,
-#    render_test
-#):
+device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 
-def train():
-    parser = config_parser()
-    args = parser.parse_args()
-    dataset_type = args.dataset_type
-    render_only = args.render_only
-    render_test = args.render_test
+def train(
+    dataset_type,
+    render_test,
+    render_only,
+    basedir,
+    expname,
+    config_path,
+    device,
+    render_factor,
+    chunk,
+    N_rand,
+    no_batching,
+    half_res,
+    testskip,
+    white_bkgd,
+    datadir,
+    multires=10,
+    i_embed=0,
+    multires_views=4,
+    netchunk=65536,
+    lrate=0.0005,
+    lrate_decay=500,
+    use_viewdirs=True,
+    N_importance=128,
+    netdepth=8,
+    netwidth=256,
+    netdepth_fine=8,
+    netwidth_fine=256,
+    ft_path=None,
+    perturb=1.0,
+    raw_noise_std=0.0,
+    N_samples=64,
+    lindisp=False,
+    precrop_iters=500,
+    precrop_frac=0.5,
+    i_weights=10000,
+    i_testset=5000,
+    i_video=5000,
+    i_print=10
+):
 
     if dataset_type == "llff":
         trainer = LLFTrainer()
@@ -30,41 +57,41 @@ def train():
         trainer = BlenderTrainer(
             dataset_type,
             render_test,
-            args.basedir,
-            args.expname,
-            args.config_path,
-            'cpu',
-            args.render_factor,
-            args.chunk,
-            args.N_rand,
-            args.no_batching,
-            args.half_res,
-            args.testskip,
-            args.white_bkgd,
-            args.datadir,
-            args.multires,
-            args.i_embed,
-            args.multires_views,
-            args.netchunk,
-            args.lrate,
-            args.lrate_decay,
-            args.use_viewdirs,
-            args.N_importance,
-            args.netdepth,
-            args.netwidth,
-            args.netdepth_fine,
-            args.netwidth_fine,
-            args.ft_path,
-            args.perturb,
-            args.raw_noise_std,
-            args.N_samples,
-            args.lindisp,
-            args.precrop_iters,
-            args.precrop_frac,
-            args.i_weights,
-            args.i_testset,
-            args.i_video,
-            args.i_print
+            basedir,
+            expname,
+            config_path,
+            device,
+            render_factor,
+            chunk,
+            N_rand,
+            no_batching,
+            half_res,
+            testskip,
+            white_bkgd,
+            datadir,
+            multires,
+            i_embed,
+            multires_views,
+            netchunk,
+            lrate,
+            lrate_decay,
+            use_viewdirs,
+            N_importance,
+            netdepth,
+            netwidth,
+            netdepth_fine,
+            netwidth_fine,
+            ft_path,
+            perturb,
+            raw_noise_std,
+            N_samples,
+            lindisp,
+            precrop_iters,
+            precrop_frac,
+            i_weights,
+            i_testset,
+            i_video,
+            i_print
         )
     elif dataset_type == "LINEMOD":
         trainer = LinemodTrainer()
@@ -132,5 +159,45 @@ def train():
 
 if __name__=='__main__':
     #torch.set_default_tensor_type('torch.cuda.FloatTensor')
-
-    train()
+    parser = config_parser()
+    args = parser.parse_args()
+    train(
+        dataset_type=args.dataset_type,
+        render_test=args.render_test,
+        render_only=args.render_only,
+        basedir=args.basedir,
+        expname=args.expname,
+        config_path=args.config_path,
+        device=device,
+        render_factor=args.render_factor,
+        chunk=args.chunk,
+        N_rand=args.N_rand,
+        no_batching=args.no_batching,
+        half_res=args.half_res,
+        testskip=args.testskip,
+        white_bkgd=args.white_bkgd,
+        datadir=args.datadir,
+        multires=args.multires,
+        i_embed=args.i_embed,
+        multires_views=args.multires_views,
+        netchunk=args.netchunk,
+        lrate=args.lrate,
+        lrate_decay=args.lrate_decay,
+        use_viewdirs=args.use_viewdirs,
+        N_importance=args.N_importance,
+        netdepth=args.netdepth,
+        netwidth=args.netwidth,
+        netdepth_fine=args.netdepth_fine,
+        netwidth_fine=args.netwidth_fine,
+        ft_path=args.ft_path,
+        perturb=args.perturb,
+        raw_noise_std=args.raw_noise_std,
+        N_samples=args.N_samples,
+        lindisp=args.lindisp,
+        precrop_iters=args.precrop_iters,
+        precrop_frac=args.precrop_frac,
+        i_weights=args.i_weights,
+        i_testset=args.i_testset,
+        i_video=args.i_video,
+        i_print=args.i_print
+    )
