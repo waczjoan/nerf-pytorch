@@ -94,9 +94,9 @@ def train(
             i_print
         )
     elif dataset_type == "LINEMOD":
-        trainer = LinemodTrainer()
+        trainer = LinemodTrainer() #TODO
     elif dataset_type == "deepvoxels":
-        trainer = DeepvoxelsTrainer()
+        trainer = DeepvoxelsTrainer() #TODO
     else:
         raise f'Unknown dataset type {dataset_type} exiting'
 
