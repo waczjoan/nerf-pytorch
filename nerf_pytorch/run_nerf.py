@@ -46,7 +46,7 @@ def train(
     precrop_iters=0,
     precrop_frac=0.5,
     i_weights=10000,
-    i_testset=5000,
+    i_testset=100,
     i_video=5000,
     i_print=100
 ):
@@ -100,8 +100,7 @@ def train(
     else:
         raise f'Unknown dataset type {dataset_type} exiting'
 
-    hwf, poses, i_test, i_val, i_train, images = trainer.load_data()
-    render_poses = None
+    hwf, poses, i_test, i_val, i_train, images, render_poses = trainer.load_data()
 
     if trainer.render_test:
         render_poses = np.array(poses[i_test])

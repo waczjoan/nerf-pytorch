@@ -1,3 +1,5 @@
+import torch
+
 from nerf_pytorch.trainers.Trainer import Trainer
 from nerf_pytorch.load_blender import load_blender_data
 
@@ -102,4 +104,5 @@ class BlenderTrainer(Trainer):
         else:
             images = images[..., :3]
 
-        return hwf, poses, i_test, i_val, i_train, images
+        render_poses = torch.Tensor(render_poses).to(self.device)
+        return hwf, poses, i_test, i_val, i_train, images, render_poses
