@@ -157,7 +157,8 @@ class Trainer:
             print('test poses shape', render_poses.shape)
 
             rgbs, _ = render_path(
-                render_poses, hwf, self.K, self.chunk, render_kwargs_test,
+                render_poses, hwf, self.K, self.chunk,
+                render_kwargs_test,
                 gt_imgs=images,
                 savedir=testsavedir,
                 render_factor=self.render_factor
@@ -324,3 +325,22 @@ class Trainer:
         new_lrate = self.lrate * (decay_rate ** (self.global_step / decay_steps))
         for param_group in optimizer.param_groups:
             param_group['lr'] = new_lrate
+
+    def sample_points(
+            self,
+            **kwargs
+    ):
+
+        z_vals_mid = kwargs["z_vals_mid"]
+        weights = kwargs["weights"]
+        perturb = kwargs["perturb"]
+        pytest = kwargs["pytest"]
+
+        z_samples = sample_pdf(
+            z_vals_mid,
+            weights[..., 1:-1],
+            self.N_importance,
+            det=(perturb == 0.),
+            pytest=pytest
+        )
+        return z_samples

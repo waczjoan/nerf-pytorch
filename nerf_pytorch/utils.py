@@ -231,6 +231,7 @@ def create_nerf(args):
         'use_viewdirs' : args.use_viewdirs,
         'white_bkgd' : args.white_bkgd,
         'raw_noise_std' : args.raw_noise_std,
+        'trainer': args
     }
 
     # NDC only good for LLFF-style forward facing data
@@ -292,19 +293,22 @@ def raw2outputs(raw, z_vals, rays_d, raw_noise_std=0, white_bkgd=False, pytest=F
     return rgb_map, disp_map, acc_map, weights, depth_map
 
 
-def render_rays(ray_batch,
-                network_fn,
-                network_query_fn,
-                N_samples,
-                retraw=False,
-                lindisp=False,
-                perturb=0.,
-                N_importance=0,
-                network_fine=None,
-                white_bkgd=False,
-                raw_noise_std=0.,
-                verbose=False,
-                pytest=False):
+def render_rays(
+    ray_batch,
+    network_fn,
+    network_query_fn,
+    N_samples,
+    trainer,
+    retraw=False,
+    lindisp=False,
+    perturb=0.,
+    N_importance=0,
+    network_fine=None,
+    white_bkgd=False,
+    raw_noise_std=0.,
+    verbose=False,
+    pytest=False,
+):
     """Volumetric rendering.
     Args:
       ray_batch: array of shape [batch_size, ...]. All information necessary
@@ -377,7 +381,15 @@ def render_rays(ray_batch,
         rgb_map_0, disp_map_0, acc_map_0 = rgb_map, disp_map, acc_map
 
         z_vals_mid = .5 * (z_vals[...,1:] + z_vals[...,:-1])
-        z_samples = sample_pdf(z_vals_mid, weights[...,1:-1], N_importance, det=(perturb==0.), pytest=pytest)
+        z_samples = trainer.sample_points(
+            z_vals_mid=z_vals_mid,
+            weights=weights,
+            perturb=perturb,
+            pytest=pytest,
+            rays_o=rays_o,
+            rays_d=rays_d,
+            z_vals=z_vals,
+        )
         z_samples = z_samples.detach()
 
         z_vals, _ = torch.sort(torch.cat([z_vals, z_samples], -1), -1)
