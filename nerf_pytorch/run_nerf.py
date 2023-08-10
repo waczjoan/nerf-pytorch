@@ -150,7 +150,8 @@ def train(
             i_test,
             images,
             loss,
-            psnr, render_kwargs_train, render_kwargs_test
+            psnr, render_kwargs_train, render_kwargs_test,
+            optimizer
         )
 
         trainer.global_step += 1

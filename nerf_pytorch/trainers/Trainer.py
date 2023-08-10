@@ -201,7 +201,7 @@ class Trainer:
         return images, poses, rays_rgb, i_batch
 
     def rest_is_logging(
-            self, i, render_poses, hwf, poses, i_test, images, loss, psnr, render_kwargs_train, render_kwargs_test
+            self, i, render_poses, hwf, poses, i_test, images, loss, psnr, render_kwargs_train, render_kwargs_test, optimizer
     ):
         if i % self.i_weights == 0:
             path = os.path.join(self.basedir, self.expname, '{:06d}.tar'.format(i))
@@ -209,7 +209,7 @@ class Trainer:
                 'global_step': self.global_step,
                 'network_fn_state_dict': render_kwargs_train['network_fn'].state_dict(),
                 'network_fine_state_dict': render_kwargs_train['network_fine'].state_dict(),
-                'optimizer_state_dict': self.optimizer.state_dict(),
+                'optimizer_state_dict': optimizer.state_dict(),
             }, path)
             print('Saved checkpoints at', path)
 
