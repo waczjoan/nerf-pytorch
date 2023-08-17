@@ -8,12 +8,12 @@ class Trainer:
     def __init__(
         self,
         dataset_type,
-        render_test,
         basedir,
         expname,
         no_batching,
         datadir,
         device="cpu",
+        render_test = False,
         config_path=None,
         N_rand=32 * 32 * 4,
         render_only=False,

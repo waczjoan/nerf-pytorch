@@ -8,8 +8,8 @@ class BlenderTrainer(Trainer):
     def __init__(
         self,
         half_res,
-        testskip,
         white_bkgd,
+        testskip=8,
         **kwargs
     ):
 
