@@ -44,6 +44,7 @@ class BlenderTrainer(Trainer):
         i_testset,
         i_video,
         i_print,
+        render_only,
         **kwargs
     ):
 
@@ -89,6 +90,7 @@ class BlenderTrainer(Trainer):
             i_testset=i_testset,
             i_video=i_video,
             i_print=i_print,
+            render_only=render_only,
             **kwargs
         )
 

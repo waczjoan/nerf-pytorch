@@ -1,6 +1,6 @@
 from pathlib import Path
 
-from nerf_pytorch.utils import *
+from nerf_pytorch.nerf_utils import *
 
 
 class Trainer:
@@ -40,11 +40,13 @@ class Trainer:
         i_weights,
         i_testset,
         i_video,
-        i_print
+        i_print,
+        render_only
     ):
         self.start = None
         self.dataset_type = dataset_type
         self.render_test = render_test
+        self.render_only = render_only
         self.basedir = basedir
         self.expname = expname
         self.config_path = config_path
