@@ -1,4 +1,5 @@
 from pathlib import Path
+from tqdm import trange
 
 from nerf_pytorch.nerf_utils import *
 
@@ -346,3 +347,59 @@ class Trainer:
             pytest=pytest
         )
         return z_samples
+
+    def train(self, N_iters = 200000 + 1):
+        hwf, poses, i_test, i_val, i_train, images, render_poses = self.load_data()
+
+        if self.render_test:
+            render_poses = np.array(poses[i_test])
+            render_poses = torch.Tensor(render_poses).to(self.device)
+
+        hwf = self.cast_intrinsics_to_right_types(hwf=hwf)
+        self.create_log_dir_and_copy_the_config_file()
+        optimizer, render_kwargs_train, render_kwargs_test = self.create_nerf_model()
+
+        if self.render_only:
+            self.render(self.render_test, images, i_test, render_poses, hwf, render_kwargs_test)
+            return self.render_only
+
+        images, poses, rays_rgb, i_batch = self.prepare_raybatch_tensor_if_batching_random_rays(
+            poses, images, i_train
+        )
+
+        print('Begin')
+        print('TRAIN views are', i_train)
+        print('TEST views are', i_test)
+        print('VAL views are', i_val)
+
+        start = self.start + 1
+        for i in trange(start, N_iters):
+            rays_rgb, i_batch, batch_rays, target_s = self.sample_random_ray_batch(
+                rays_rgb,
+                i_batch,
+                i_train,
+                images,
+                poses,
+                i
+            )
+
+            trans, loss, psnr, psnr0 = self.core_optimization_loop(
+                optimizer, render_kwargs_train,
+                batch_rays, i, target_s,
+            )
+
+            self.update_learning_rate(optimizer)
+
+            self.rest_is_logging(
+                i,
+                render_poses,
+                hwf,
+                poses,
+                i_test,
+                images,
+                loss,
+                psnr, render_kwargs_train, render_kwargs_test,
+                optimizer
+            )
+
+            self.global_step += 1

@@ -25,62 +25,7 @@ def train(
                 f'Trainer is declared by {trainer_config["module"]}')
 
     trainer = load_obj_from_config(cfg=trainer_config)
-
-    hwf, poses, i_test, i_val, i_train, images, render_poses = trainer.load_data()
-
-    if trainer.render_test:
-        render_poses = np.array(poses[i_test])
-        render_poses = torch.Tensor(render_poses).to(trainer.device)
-
-    hwf = trainer.cast_intrinsics_to_right_types(hwf=hwf)
-    trainer.create_log_dir_and_copy_the_config_file()
-    optimizer, render_kwargs_train, render_kwargs_test = trainer.create_nerf_model()
-
-    if trainer.render_only:
-        trainer.render(trainer.render_test, images, i_test, render_poses, hwf, render_kwargs_test)
-        return trainer.render_only
-
-    images, poses, rays_rgb, i_batch = trainer.prepare_raybatch_tensor_if_batching_random_rays(
-        poses, images, i_train
-    )
-
-    N_iters = 200000 + 1
-    print('Begin')
-    print('TRAIN views are', i_train)
-    print('TEST views are', i_test)
-    print('VAL views are', i_val)
-
-    start = trainer.start + 1
-    for i in trange(start, N_iters):
-        rays_rgb, i_batch, batch_rays, target_s = trainer.sample_random_ray_batch(
-            rays_rgb,
-            i_batch,
-            i_train,
-            images,
-            poses,
-            i
-        )
-
-        trans, loss, psnr, psnr0 = trainer.core_optimization_loop(
-            optimizer, render_kwargs_train,
-            batch_rays, i, target_s,
-        )
-
-        trainer.update_learning_rate(optimizer)
-
-        trainer.rest_is_logging(
-            i,
-            render_poses,
-            hwf,
-            poses,
-            i_test,
-            images,
-            loss,
-            psnr, render_kwargs_train, render_kwargs_test,
-            optimizer
-        )
-
-        trainer.global_step += 1
+    trainer.train()
 
 
 if __name__ == '__main__':
