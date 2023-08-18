@@ -388,9 +388,12 @@ def render_rays(
             pytest=pytest,
             rays_o=rays_o,
             rays_d=rays_d,
-            z_vals=z_vals,
         )
 
+        pts_samples = rays_o[..., None, :] + rays_d[..., None, :] * z_vals[..., :,
+                                                            None]  # [N_rays, N_samples, 3]
+
+        pts = torch.hstack((pts, pts_samples))
         run_fn = network_fn if network_fine is None else network_fine
 #         raw = run_network(pts, fn=run_fn)
         raw = network_query_fn(pts, viewdirs, run_fn)

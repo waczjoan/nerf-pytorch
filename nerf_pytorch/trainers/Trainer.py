@@ -335,7 +335,6 @@ class Trainer:
         weights,
         perturb,
         pytest,
-        z_vals,
         rays_d,
         rays_o
     ):
@@ -346,7 +345,6 @@ class Trainer:
             pytest=pytest,
             rays_o=rays_o,
             rays_d=rays_d,
-            z_vals=z_vals,
         )
 
         return z_samples, pts
@@ -357,7 +355,6 @@ class Trainer:
         weights,
         perturb,
         pytest,
-        z_vals,
         rays_d,
         rays_o,
         n_importance=None
@@ -380,8 +377,7 @@ class Trainer:
 
         z_samples = z_samples.detach()
 
-        z_vals, _ = torch.sort(torch.cat([z_vals, z_samples], -1), -1)
-        pts = rays_o[..., None, :] + rays_d[..., None, :] * z_vals[..., :, None]  # [N_rays, N_samples + N_importance, 3]
+        pts = rays_o[..., None, :] + rays_d[..., None, :] * z_samples[..., :, None]  # [N_rays, N_importance, 3]
         return z_samples, pts
 
     def train(self, N_iters = 200000 + 1):
