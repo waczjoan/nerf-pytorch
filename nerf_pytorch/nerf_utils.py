@@ -381,7 +381,7 @@ def render_rays(
         rgb_map_0, disp_map_0, acc_map_0 = rgb_map, disp_map, acc_map
 
         z_vals_mid = .5 * (z_vals[...,1:] + z_vals[...,:-1])
-        z_samples = trainer.sample_points(
+        z_samples, pts = trainer.sample_points(
             z_vals_mid=z_vals_mid,
             weights=weights,
             perturb=perturb,
@@ -390,10 +390,6 @@ def render_rays(
             rays_d=rays_d,
             z_vals=z_vals,
         )
-        z_samples = z_samples.detach()
-
-        z_vals, _ = torch.sort(torch.cat([z_vals, z_samples], -1), -1)
-        pts = rays_o[...,None,:] + rays_d[...,None,:] * z_vals[...,:,None] # [N_rays, N_samples + N_importance, 3]
 
         run_fn = network_fn if network_fine is None else network_fine
 #         raw = run_network(pts, fn=run_fn)

@@ -330,23 +330,59 @@ class Trainer:
             param_group['lr'] = new_lrate
 
     def sample_points(
-            self,
-            **kwargs
+        self,
+        z_vals_mid,
+        weights,
+        perturb,
+        pytest,
+        z_vals,
+        rays_d,
+        rays_o
+    ):
+        z_samples, pts = self._sample_points(
+            z_vals_mid=z_vals_mid,
+            weights=weights,
+            perturb=perturb,
+            pytest=pytest,
+            rays_o=rays_o,
+            rays_d=rays_d,
+            z_vals=z_vals,
+        )
+
+        return z_samples, pts
+
+    def _sample_points(
+        self,
+        z_vals_mid,
+        weights,
+        perturb,
+        pytest,
+        z_vals,
+        rays_d,
+        rays_o,
+        n_importance=None
     ):
 
-        z_vals_mid = kwargs["z_vals_mid"]
-        weights = kwargs["weights"]
-        perturb = kwargs["perturb"]
-        pytest = kwargs["pytest"]
+        if n_importance is None:
+            n_importance = self.N_importance
+        z_vals_mid = z_vals_mid
+        weights = weights
+        perturb = perturb
+        pytest = pytest
 
         z_samples = sample_pdf(
             z_vals_mid,
             weights[..., 1:-1],
-            self.N_importance,
+            n_importance,
             det=(perturb == 0.),
             pytest=pytest
         )
-        return z_samples
+
+        z_samples = z_samples.detach()
+
+        z_vals, _ = torch.sort(torch.cat([z_vals, z_samples], -1), -1)
+        pts = rays_o[..., None, :] + rays_d[..., None, :] * z_vals[..., :, None]  # [N_rays, N_samples + N_importance, 3]
+        return z_samples, pts
 
     def train(self, N_iters = 200000 + 1):
         hwf, poses, i_test, i_val, i_train, images, render_poses = self.load_data()
