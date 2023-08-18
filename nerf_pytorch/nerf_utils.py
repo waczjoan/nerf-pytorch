@@ -394,6 +394,8 @@ def render_rays(
                                                             None]  # [N_rays, N_samples, 3]
 
         pts = torch.hstack((pts, pts_samples))
+
+        z_vals, _ = torch.sort(torch.cat([z_vals, z_samples], -1), -1)
         run_fn = network_fn if network_fine is None else network_fine
 #         raw = run_network(pts, fn=run_fn)
         raw = network_query_fn(pts, viewdirs, run_fn)
