@@ -379,7 +379,6 @@ class Trainer:
 
         pts = rays_o[..., None, :] + rays_d[..., None, :] * z_samples[..., :, None]  # [N_rays, N_importance, 3]
         return z_samples, pts
-        return z_samples, pts
 
     def train(self, N_iters = 200000 + 1):
         hwf, poses, i_test, i_val, i_train, images, render_poses = self.load_data()
