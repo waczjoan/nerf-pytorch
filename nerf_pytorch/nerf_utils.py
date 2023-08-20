@@ -390,12 +390,13 @@ def render_rays(
             rays_d=rays_d,
         )
 
-        pts_samples = rays_o[..., None, :] + rays_d[..., None, :] * z_vals[..., :,
-                                                            None]  # [N_rays, N_samples, 3]
+        #pts_samples = rays_o[..., None, :] + rays_d[..., None, :] * z_vals[..., :,
+        #                                                    None]  # [N_rays, N_samples, 3]
 
-        pts = torch.hstack((pts, pts_samples))
+        #pts = torch.hstack((pts, pts_samples))
 
         z_vals, _ = torch.sort(torch.cat([z_vals, z_samples], -1), -1)
+        pts = rays_o[..., None, :] + rays_d[..., None, :] * z_vals[..., :, None]
         run_fn = network_fn if network_fine is None else network_fine
 #         raw = run_network(pts, fn=run_fn)
         raw = network_query_fn(pts, viewdirs, run_fn)
