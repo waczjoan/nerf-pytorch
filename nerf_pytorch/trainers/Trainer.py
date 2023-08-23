@@ -1,6 +1,8 @@
 from pathlib import Path
 from tqdm import trange
 
+from torch.utils.tensorboard import SummaryWriter
+
 from nerf_pytorch.nerf_utils import *
 
 
@@ -42,7 +44,8 @@ class Trainer:
         i_weights=10000,
         i_testset=100,
         i_video=5000,
-        i_print=100
+        i_print=100,
+        tensorboard_logging: bool = True
     ):
         self.start = None
         self.dataset_type = dataset_type
@@ -82,11 +85,17 @@ class Trainer:
         self.i_testset = i_testset
         self.i_video = i_video
         self.i_print = i_print
+        self.tensorboard_logging = tensorboard_logging
 
         self.K = None
         self.global_step = None
         self.W = None
         self.H = None
+
+        if ~self.render_only & tensorboard_logging:
+            self.writer = SummaryWriter(
+                log_dir=f'{self.basedir}/metrics/{self.expname}'
+            )
 
     def load_data(
         self,
@@ -380,6 +389,13 @@ class Trainer:
         pts = rays_o[..., None, :] + rays_d[..., None, :] * z_samples[..., :, None]  # [N_rays, N_importance, 3]
         return z_samples, pts
 
+    def log_on_tensorboard(self, step, metrics):
+        for i in metrics:
+            for j in metrics[i]:
+                self.writer.add_scalar(f"{i}/{j}", metrics[i][j], step)
+        self.writer.flush()
+
+
     def train(self, N_iters = 200000 + 1):
         hwf, poses, i_test, i_val, i_train, images, render_poses = self.load_data()
 
@@ -420,6 +436,17 @@ class Trainer:
                 batch_rays, i, target_s,
             )
 
+            if self.tensorboard_logging:
+                self.log_on_tensorboard(
+                    i,
+                    {
+                        'train': {
+                            'loss': loss,
+                            'psnr': psnr
+                        }
+                    }
+                )
+
             self.update_learning_rate(optimizer)
 
             self.rest_is_logging(
@@ -435,3 +462,5 @@ class Trainer:
             )
 
             self.global_step += 1
+
+        self.writer.close()
