@@ -217,12 +217,14 @@ class Trainer:
     ):
         if i % self.i_weights == 0:
             path = os.path.join(self.basedir, self.expname, '{:06d}.tar'.format(i))
-            torch.save({
+            data = {
                 'global_step': self.global_step,
                 'network_fn_state_dict': render_kwargs_train['network_fn'].state_dict(),
-                'network_fine_state_dict': render_kwargs_train['network_fine'].state_dict(),
                 'optimizer_state_dict': optimizer.state_dict(),
-            }, path)
+            }
+            if 'network_fine' in render_kwargs_train:
+                data['network_fine_state_dict'] = render_kwargs_train['network_fine'].state_dict()
+            torch.save(data, path)
             print('Saved checkpoints at', path)
 
         if i % self.i_video == 0 and i > 0:
@@ -321,6 +323,7 @@ class Trainer:
         loss = img_loss
         psnr = mse2psnr(img_loss)
 
+        psnr0 = None
         if 'rgb0' in extras:
             img_loss0 = img2mse(extras['rgb0'], target_s)
             loss = loss + img_loss0
@@ -464,3 +467,48 @@ class Trainer:
             self.global_step += 1
 
         self.writer.close()
+
+    def sample_additional_points(
+        self,
+        z_vals,
+        weights,
+        perturb,
+        pytest,
+        rays_d,
+        rays_o,
+        rgb_map,
+        disp_map,
+        acc_map,
+        network_fn,
+        network_fine,
+        network_query_fn,
+        viewdirs,
+        raw2outputs,
+        raw_noise_std,
+        white_bkgd
+    ):
+        rgb_map_0, disp_map_0, acc_map_0 = None, None, None
+        if self.N_importance > 0:
+            rgb_map_0, disp_map_0, acc_map_0 = rgb_map, disp_map, acc_map
+
+            z_vals_mid = .5 * (z_vals[..., 1:] + z_vals[..., :-1])
+            z_samples, pts = self.sample_points(
+                z_vals_mid=z_vals_mid,
+                weights=weights,
+                perturb=perturb,
+                pytest=pytest,
+                rays_o=rays_o,
+                rays_d=rays_d,
+            )
+
+            z_vals, _ = torch.sort(torch.cat([z_vals, z_samples], -1), -1)
+            pts = rays_o[..., None, :] + rays_d[..., None, :] * z_vals[..., :, None]
+            run_fn = network_fn if network_fine is None else network_fine
+
+            raw = network_query_fn(pts, viewdirs, run_fn)
+
+            rgb_map, disp_map, acc_map, _, _ = raw2outputs(raw, z_vals, rays_d, raw_noise_std, white_bkgd,
+                                                                         pytest=pytest)
+
+        return rgb_map_0, disp_map_0, acc_map_0, rgb_map, disp_map, acc_map, raw
+
