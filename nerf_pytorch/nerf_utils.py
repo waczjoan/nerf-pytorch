@@ -393,7 +393,6 @@ def render_rays(
         network_fine=network_fine,
         network_query_fn=network_query_fn,
         viewdirs=viewdirs,
-        raw2outputs=raw2outputs,
         raw_noise_std=raw_noise_std,
         white_bkgd=white_bkgd
     )
