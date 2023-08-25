@@ -222,7 +222,7 @@ class Trainer:
                 'network_fn_state_dict': render_kwargs_train['network_fn'].state_dict(),
                 'optimizer_state_dict': optimizer.state_dict(),
             }
-            if 'network_fine' in render_kwargs_train:
+            if render_kwargs_train['network_fine'] is not None:
                 data['network_fine_state_dict'] = render_kwargs_train['network_fine'].state_dict()
             torch.save(data, path)
             print('Saved checkpoints at', path)
@@ -467,48 +467,3 @@ class Trainer:
             self.global_step += 1
 
         self.writer.close()
-
-    def sample_additional_points(
-        self,
-        z_vals,
-        weights,
-        perturb,
-        pytest,
-        rays_d,
-        rays_o,
-        rgb_map,
-        disp_map,
-        acc_map,
-        network_fn,
-        network_fine,
-        network_query_fn,
-        viewdirs,
-        raw2outputs,
-        raw_noise_std,
-        white_bkgd
-    ):
-        rgb_map_0, disp_map_0, acc_map_0 = None, None, None
-        if self.N_importance > 0:
-            rgb_map_0, disp_map_0, acc_map_0 = rgb_map, disp_map, acc_map
-
-            z_vals_mid = .5 * (z_vals[..., 1:] + z_vals[..., :-1])
-            z_samples, pts = self.sample_points(
-                z_vals_mid=z_vals_mid,
-                weights=weights,
-                perturb=perturb,
-                pytest=pytest,
-                rays_o=rays_o,
-                rays_d=rays_d,
-            )
-
-            z_vals, _ = torch.sort(torch.cat([z_vals, z_samples], -1), -1)
-            pts = rays_o[..., None, :] + rays_d[..., None, :] * z_vals[..., :, None]
-            run_fn = network_fn if network_fine is None else network_fine
-
-            raw = network_query_fn(pts, viewdirs, run_fn)
-
-            rgb_map, disp_map, acc_map, _, _ = raw2outputs(raw, z_vals, rays_d, raw_noise_std, white_bkgd,
-                                                                         pytest=pytest)
-
-        return rgb_map_0, disp_map_0, acc_map_0, rgb_map, disp_map, acc_map, raw
-
