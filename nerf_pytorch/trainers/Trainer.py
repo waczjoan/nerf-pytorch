@@ -5,7 +5,6 @@ from torch.utils.tensorboard import SummaryWriter
 
 from nerf_pytorch.nerf_utils import *
 
-
 class Trainer:
 
     def __init__(
@@ -448,7 +447,7 @@ class Trainer:
 
         self.writer.close()
 
-    def sample_additional_points(
+    def sample_points(
         self,
         z_vals,
         weights,
@@ -465,7 +464,7 @@ class Trainer:
         viewdirs,
         raw_noise_std, white_bkgd
     ):
-        rgb_map_0, disp_map_0, acc_map_0 = None, None, None
+        rgb_map_0, disp_map_0, acc_map_0, raw = None, None, None, None
         if self.N_importance > 0:
             rgb_map_0, disp_map_0, acc_map_0 = rgb_map, disp_map, acc_map
 

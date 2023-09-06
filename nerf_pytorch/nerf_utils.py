@@ -379,7 +379,7 @@ def render_rays(
         raw = network_query_fn(pts, viewdirs, network_fn)
         rgb_map, disp_map, acc_map, weights, depth_map = raw2outputs(raw, z_vals, rays_d, raw_noise_std, white_bkgd, pytest=pytest)
 
-    rgb_map_0, disp_map_0, acc_map_0, rgb_map, disp_map, acc_map, raw = trainer.sample_additional_points(
+    rgb_map_0, disp_map_0, acc_map_0, rgb_map, disp_map, acc_map, raw_0 = trainer.sample_points(
         z_vals=z_vals,
         weights=weights,
         perturb=perturb,
@@ -399,7 +399,10 @@ def render_rays(
 
     ret = {'rgb_map' : rgb_map, 'disp_map' : disp_map, 'acc_map' : acc_map}
     if retraw:
-        ret['raw'] = raw
+        if raw_0 is None:
+            ret['raw'] = raw
+        else:
+            ret['raw'] = raw_0
     if N_importance > 0:
         ret['rgb0'] = rgb_map_0
         ret['disp0'] = disp_map_0
