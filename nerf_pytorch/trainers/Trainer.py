@@ -134,7 +134,7 @@ class Trainer:
                 file.write(open(self.config_path, 'r').read())
 
     def create_nerf_model(self):
-        _create_nerf_model(self, model=NeRF)
+        return self._create_nerf_model(self, model=NeRF)
 
     def _create_nerf_model(self, model):
         render_kwargs_train, render_kwargs_test, start, grad_vars, optimizer = create_nerf(self, model=model)
