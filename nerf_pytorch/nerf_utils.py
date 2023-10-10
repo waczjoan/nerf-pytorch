@@ -148,12 +148,12 @@ def render_path(render_poses, hwf, K, chunk, render_kwargs, gt_imgs=None, savedi
 def create_nerf(args, model):
     """Instantiate NeRF's MLP model.
     """
-    embed_fn, input_ch = get_embedder(args.multires, args.i_embed)
+    embed_fn, input_ch = get_embedder(args.multires, args.i_embed, args.input_dims_embed)
 
     input_ch_views = 0
     embeddirs_fn = None
     if args.use_viewdirs:
-        embeddirs_fn, input_ch_views = get_embedder(args.multires_views, args.i_embed)
+        embeddirs_fn, input_ch_views = get_embedder(args.multires_views, args.i_embed, args.input_dims_embed)
     output_ch = 5 if args.N_importance > 0 else 4
     skips = [4]
     model_nerf = model(D=args.netdepth, W=args.netwidth,
@@ -393,6 +393,8 @@ def config_parser():
                         help='do not reload weights from saved ckpt')
     parser.add_argument("--ft_path", type=str, default=None, 
                         help='specific weights npy file to reload for coarse network')
+    parser.add_argument("--input_dims_embed", type=int, default=None,
+                        help='input_dims in get_embedder')
 
     # rendering options
     parser.add_argument("--N_samples", type=int, default=64, 

@@ -54,6 +54,7 @@ if __name__ == '__main__':
             'multires_views': args.multires_views,
             'netchunk': args.netchunk,
             'lrate': args.lrate,
+            'input_dims_embed': args.input_dims_embed,
             'lrate_decay': args.lrate_decay,
             'use_viewdirs': args.use_viewdirs,
             'N_importance': args.N_importance,
