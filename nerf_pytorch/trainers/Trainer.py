@@ -243,8 +243,24 @@ class Trainer:
             os.makedirs(testsavedir, exist_ok=True)
             print('test poses shape', poses[i_test].shape)
             with torch.no_grad():
-                render_path(torch.Tensor(poses[i_test]).to(device), hwf, self.K, self.chunk, render_kwargs_test,
-                            gt_imgs=images[i_test], savedir=testsavedir)
+                target_s = images[i_test]
+                rgbs, _ = render_path(torch.Tensor(poses[i_test]).to(device), hwf, self.K, self.chunk,
+                                      render_kwargs_test,
+                                      gt_imgs=target_s, savedir=testsavedir)
+
+                img_loss = img2mse(torch.Tensor(rgbs), torch.Tensor(target_s))
+                loss = img_loss
+                psnr = mse2psnr(img_loss)
+
+                self.log_on_tensorboard(
+                    i,
+                    {
+                        'test': {
+                            'loss': loss,
+                            'psnr': psnr
+                        }
+                    }
+                )
             print('Saved test set')
 
         if i % self.i_print == 0:
