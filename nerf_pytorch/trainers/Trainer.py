@@ -44,7 +44,8 @@ class Trainer:
         i_testset=100,
         i_video=5000,
         i_print=100,
-        tensorboard_logging: bool = True
+        tensorboard_logging: bool = True,
+        input_dims_embed: int = 1
     ):
         self.start = None
         self.dataset_type = dataset_type
@@ -85,6 +86,7 @@ class Trainer:
         self.i_video = i_video
         self.i_print = i_print
         self.tensorboard_logging = tensorboard_logging
+        self.input_dims_embed = input_dims_embed
 
         self.K = None
         self.global_step = None
