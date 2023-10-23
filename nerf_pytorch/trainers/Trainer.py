@@ -92,6 +92,7 @@ class Trainer:
         self.global_step = None
         self.W = None
         self.H = None
+        self.c2w = None
 
         if ~self.render_only & tensorboard_logging:
             self.writer = SummaryWriter(
@@ -296,9 +297,10 @@ class Trainer:
             target = images[img_i]
             target = torch.Tensor(target).to(device)
             pose = poses[img_i, :3, :4]
+            self.c2w = torch.Tensor(pose)
 
             if self.N_rand is not None:
-                rays_o, rays_d = get_rays(self.H, self.W, self.K, torch.Tensor(pose))  # (H, W, 3), (H, W, 3)
+                rays_o, rays_d = get_rays(self.H, self.W, self.K, self.c2w)  # (H, W, 3), (H, W, 3)
 
                 if i < self.precrop_iters:
                     dH = int(self.H // 2 * self.precrop_frac)
