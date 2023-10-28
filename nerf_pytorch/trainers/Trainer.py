@@ -569,7 +569,7 @@ class Trainer:
 
         return rgb_map_0, disp_map_0, acc_map_0, rgb_map, disp_map, acc_map, raw, z_samples
 
-    def raw2outputs(self, raw, z_vals, rays_d, raw_noise_std=0, white_bkgd=False, pytest=False):
+    def raw2outputs(self, raw, z_vals, rays_d, raw_noise_std=0, white_bkgd=False, pytest=False, **kwargs):
         """Transforms model's predictions to semantically meaningful values.
         Args:
             raw: [num_rays, num_samples along ray, 4]. Prediction from model.
