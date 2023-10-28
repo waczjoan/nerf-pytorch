@@ -44,7 +44,7 @@ class Embedder:
         return torch.cat([fn(inputs) for fn in self.embed_fns], -1)
 
 
-def get_embedder(multires, i=0, input_dims = 3):
+def get_embedder(multires, i=0, input_dims = 4): # 4 if canals
     if i == -1:
         return nn.Identity(), 3
 

@@ -10,6 +10,8 @@ class BlenderTrainer(Trainer):
         half_res,
         white_bkgd,
         testskip=8,
+        near= 2.0,
+        far = 6.0,
         **kwargs
     ):
 
