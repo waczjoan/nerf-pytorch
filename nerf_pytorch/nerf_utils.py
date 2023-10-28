@@ -318,7 +318,7 @@ def render_rays(
             pytest=pytest
         )
 
-    rgb_map_0, disp_map_0, acc_map_0, rgb_map, disp_map, acc_map, raw_0 = trainer.sample_points(
+    rgb_map_0, disp_map_0, acc_map_0, rgb_map, disp_map, acc_map, raw_0, z_samples = trainer.sample_points(
         z_vals=z_vals,
         weights=weights,
         perturb=perturb,
