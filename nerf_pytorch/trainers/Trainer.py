@@ -488,6 +488,8 @@ class Trainer:
         raw_noise_std, white_bkgd
     ):
         rgb_map_0, disp_map_0, acc_map_0, raw = None, None, None, None
+        z_samples = None
+
         if self.N_importance > 0:
             rgb_map_0, disp_map_0, acc_map_0 = rgb_map, disp_map, acc_map
 
