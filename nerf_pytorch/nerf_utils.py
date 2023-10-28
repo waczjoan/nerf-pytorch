@@ -282,7 +282,7 @@ def render_rays(
     bounds = torch.reshape(ray_batch[...,6:8], [-1,1,2])
     near, far = bounds[...,0], bounds[...,1] # [-1,1]
 
-    rgb_map, disp_map, acc_map, weights, depth_map = trainer.sample_main_points(
+    rgb_map, disp_map, acc_map, weights, depth_map, z_vals, weights, raw = trainer.sample_main_points(
         near=near,
         far=far,
         perturb=perturb,

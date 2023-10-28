@@ -490,6 +490,7 @@ class Trainer:
 
         rgb_map, disp_map, acc_map, depth_map = None, None, None, None
         weights = None
+        z_vals = None
 
         if N_samples > 0:
             t_vals = torch.linspace(0., 1., steps=N_samples)
@@ -522,7 +523,7 @@ class Trainer:
                 raw, z_vals, rays_d, raw_noise_std, white_bkgd,
                 pytest=pytest
             )
-        return rgb_map, disp_map, acc_map, weights, depth_map
+        return rgb_map, disp_map, acc_map, weights, depth_map, z_vals, weights, raw
 
     def sample_points(
         self,
