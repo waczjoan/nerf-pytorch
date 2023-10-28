@@ -19,8 +19,8 @@ class BlenderTrainer(Trainer):
         self.testskip = testskip
         self.white_bkgd = white_bkgd
 
-        self.near = 2.
-        self.far = 6.
+        self.near = near
+        self.far = far
 
         super().__init__(
             **kwargs
