@@ -282,41 +282,19 @@ def render_rays(
     bounds = torch.reshape(ray_batch[...,6:8], [-1,1,2])
     near, far = bounds[...,0], bounds[...,1] # [-1,1]
 
-    z_vals = torch.tensor([])
-    rgb_map, disp_map, acc_map = None, None, None
-    weights = None
-
-    if N_samples > 0:
-        t_vals = torch.linspace(0., 1., steps=N_samples)
-        if not lindisp:
-            z_vals = near * (1.-t_vals) + far * (t_vals)
-        else:
-            z_vals = 1./(1./near * (1.-t_vals) + 1./far * (t_vals))
-
-        z_vals = z_vals.expand([N_rays, N_samples])
-
-        if perturb > 0.:
-            # get intervals between samples
-            mids = .5 * (z_vals[...,1:] + z_vals[...,:-1])
-            upper = torch.cat([mids, z_vals[...,-1:]], -1)
-            lower = torch.cat([z_vals[...,:1], mids], -1)
-            # stratified samples in those intervals
-            t_rand = torch.rand(z_vals.shape)
-
-            # Pytest, overwrite u with numpy's fixed random numbers
-            if pytest:
-                np.random.seed(0)
-                t_rand = np.random.rand(*list(z_vals.shape))
-                t_rand = torch.Tensor(t_rand)
-
-            z_vals = lower + (upper - lower) * t_rand
-
-        pts = rays_o[...,None,:] + rays_d[...,None,:] * z_vals[...,:,None] # [N_rays, N_samples, 3]
-        raw = network_query_fn(pts, viewdirs, network_fn)
-        rgb_map, disp_map, acc_map, weights, depth_map = trainer.raw2outputs(
-            raw, z_vals, rays_d, raw_noise_std, white_bkgd,
-            pytest=pytest
-        )
+    rgb_map, disp_map, acc_map, weights, depth_map = self.sample_main_points(
+        near=near,
+        far=far,
+        N_rays=N_rays,
+        N_samples=N_samples,
+        viewdirs=viewdirs,
+        network_fn=network_fn,
+        rays_o=rays_o,
+        rays_d=rays_d,
+        raw_noise_std=raw_noise_std,
+        white_bkgd=white_bkgd,
+        pytest=pytest
+    )
 
     rgb_map_0, disp_map_0, acc_map_0, rgb_map, disp_map, acc_map, raw_0, z_samples = trainer.sample_points(
         z_vals=z_vals,
