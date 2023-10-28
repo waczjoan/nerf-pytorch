@@ -285,15 +285,18 @@ def render_rays(
     rgb_map, disp_map, acc_map, weights, depth_map = trainer.sample_main_points(
         near=near,
         far=far,
+        perturb=perturb,
         N_rays=N_rays,
         N_samples=N_samples,
         viewdirs=viewdirs,
         network_fn=network_fn,
+        network_query_fn=network_query_fn,
         rays_o=rays_o,
         rays_d=rays_d,
         raw_noise_std=raw_noise_std,
         white_bkgd=white_bkgd,
-        pytest=pytest
+        pytest=pytest,
+        lindisp=lindisp
     )
 
     rgb_map_0, disp_map_0, acc_map_0, rgb_map, disp_map, acc_map, raw_0, z_samples = trainer.sample_points(

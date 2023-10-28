@@ -474,15 +474,18 @@ class Trainer:
         self,
         near,
         far,
+        perturb,
         N_rays,
         N_samples,
         viewdirs,
         network_fn,
+        network_query_fn,
         rays_o,
         rays_d,
         raw_noise_std,
         white_bkgd,
-        pytest
+        pytest,
+        lindisp
     ):
 
         rgb_map, disp_map, acc_map, depth_map = None, None, None, None
