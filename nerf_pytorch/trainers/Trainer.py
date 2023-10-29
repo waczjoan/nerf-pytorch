@@ -485,7 +485,8 @@ class Trainer:
         raw_noise_std,
         white_bkgd,
         pytest,
-        lindisp
+        lindisp,
+        **kwargs
     ):
 
         rgb_map, disp_map, acc_map, depth_map = None, None, None, None

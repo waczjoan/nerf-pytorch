@@ -244,6 +244,7 @@ def render_rays(
     raw_noise_std=0.,
     verbose=False,
     pytest=False,
+    **kwargs
 ):
     """Volumetric rendering.
     Args:
@@ -296,7 +297,8 @@ def render_rays(
         raw_noise_std=raw_noise_std,
         white_bkgd=white_bkgd,
         pytest=pytest,
-        lindisp=lindisp
+        lindisp=lindisp,
+        **kwargs
     )
 
     rgb_map_0, disp_map_0, acc_map_0, rgb_map, disp_map, acc_map, raw_0, z_samples = trainer.sample_points(
