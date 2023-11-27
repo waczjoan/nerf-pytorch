@@ -490,6 +490,7 @@ class Trainer:
     ):
 
         rgb_map, disp_map, acc_map, depth_map = None, None, None, None
+        raw = None
         weights = None
         z_vals = None
 
