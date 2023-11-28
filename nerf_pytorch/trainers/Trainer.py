@@ -45,7 +45,8 @@ class Trainer:
         i_video=5000,
         i_print=100,
         tensorboard_logging: bool = True,
-        input_dims_embed: int = 1
+        input_dims_embed: int = 1,
+        save_train_set_render: bool = True
     ):
         self.start = None
         self.dataset_type = dataset_type
@@ -87,6 +88,7 @@ class Trainer:
         self.i_print = i_print
         self.tensorboard_logging = tensorboard_logging
         self.input_dims_embed = input_dims_embed
+        self.save_train_set_render = save_train_set_render
 
         self.K = None
         self.global_step = None
@@ -216,9 +218,10 @@ class Trainer:
             rays_rgb = torch.Tensor(rays_rgb).to(device)
 
         return images, poses, rays_rgb, i_batch
+        
 
     def rest_is_logging(
-            self, i, render_poses, hwf, poses, i_test, images, loss, psnr, render_kwargs_train, render_kwargs_test, optimizer
+            self, i, render_poses, hwf, poses, i_test,  i_train, images, loss, psnr, render_kwargs_train, render_kwargs_test, optimizer
     ):
         if i % self.i_weights == 0:
             path = os.path.join(self.basedir, self.expname, '{:06d}.tar'.format(i))
@@ -265,6 +268,18 @@ class Trainer:
                     }
                 )
             print('Saved test set')
+            
+       	if i % self.i_testset == 0 and i > 0 and self.save_train_set_render:
+            testsavedir = os.path.join(self.basedir, self.expname, 'trainset_{:06d}'.format(i))
+            os.makedirs(testsavedir, exist_ok=True)
+            print('test poses shape', poses[i_train[:10]].shape)
+            with torch.no_grad():
+                target_s = images[i_test]
+                rgbs, _ = render_path(torch.Tensor(poses[i_train[:10]]).to(device), hwf, self.K, self.chunk,
+                                      render_kwargs_test,
+                                      gt_imgs=target_s, savedir=testsavedir)
+
+            print('Saved train set')
 
         if i % self.i_print == 0:
             tqdm.write(f"[TRAIN] Iter: {i} Loss: {loss.item()}  PSNR: {psnr.item()}")
@@ -459,7 +474,7 @@ class Trainer:
                 render_poses,
                 hwf,
                 poses,
-                i_test,
+                i_test, i_train,
                 images,
                 loss,
                 psnr, render_kwargs_train, render_kwargs_test,
