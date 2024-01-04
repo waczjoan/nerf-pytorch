@@ -11,3 +11,4 @@ logs/*
 .tox
 .idea
 *.egg-info/
+env

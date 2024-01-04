@@ -2,7 +2,7 @@ import os
 import imageio
 import time
 from tqdm import tqdm
-
+from sampling_networks.baseline_sampler import BaselineSampler
 from nerf_pytorch.run_nerf_helpers import *
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -172,6 +172,13 @@ def create_nerf(args, model):
                                                                 embed_fn=embed_fn,
                                                                 embeddirs_fn=embeddirs_fn,
                                                                 netchunk=args.netchunk)
+    
+    # Create sampling network 
+
+    sampling_network = BaselineSampler(
+        output_channels=args.N_samples
+    )
+    grad_vars += list(sampling_network.parameters())
 
     # Create optimizer
     optimizer = torch.optim.Adam(params=grad_vars, lr=args.lrate, betas=(0.9, 0.999))
@@ -214,7 +221,8 @@ def create_nerf(args, model):
         'use_viewdirs' : args.use_viewdirs,
         'white_bkgd' : args.white_bkgd,
         'raw_noise_std' : args.raw_noise_std,
-        'trainer': args
+        'trainer': args,
+        'sampling_network': sampling_network,
     }
 
     # NDC only good for LLFF-style forward facing data
