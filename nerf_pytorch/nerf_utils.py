@@ -98,7 +98,7 @@ def render(H, W, K, chunk=1024*32, rays=None, c2w=None, ndc=True,
         k_sh = list(sh[:-1]) + list(all_ret[k].shape[1:])
         all_ret[k] = torch.reshape(all_ret[k], k_sh)
 
-    k_extract = ['rgb_map', 'disp_map', 'acc_map']
+    k_extract = ['rgb_map', 'disp_map', 'acc_map', 'alphas_map']
     ret_list = [all_ret[k] for k in k_extract]
     ret_dict = {k : all_ret[k] for k in all_ret if k not in k_extract}
     return ret_list + [ret_dict]
@@ -283,7 +283,7 @@ def render_rays(
     bounds = torch.reshape(ray_batch[...,6:8], [-1,1,2])
     near, far = bounds[...,0], bounds[...,1] # [-1,1]
 
-    rgb_map, disp_map, acc_map, weights, depth_map, z_vals, weights, raw = trainer.sample_main_points(
+    rgb_map, disp_map, acc_map, weights, depth_map, z_vals, weights, raw, alphas_map = trainer.sample_main_points(
         near=near,
         far=far,
         perturb=perturb,
@@ -319,7 +319,7 @@ def render_rays(
         white_bkgd=white_bkgd
     )
 
-    ret = {'rgb_map' : rgb_map, 'disp_map' : disp_map, 'acc_map' : acc_map}
+    ret = {'rgb_map' : rgb_map, 'disp_map' : disp_map, 'acc_map' : acc_map, 'alphas_map': alphas_map}
     if retraw:
         if raw_0 is None:
             ret['raw'] = raw

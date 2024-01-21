@@ -46,7 +46,9 @@ class Trainer:
         i_print=100,
         tensorboard_logging: bool = True,
         input_dims_embed: int = 1,
-        save_train_set_render: bool = True
+        save_train_set_render: bool = True,
+        use_alphas_in_loss: bool = False,
+        alphas_loss_weight: float = 0.01,
     ):
         self.start = None
         self.dataset_type = dataset_type
@@ -89,6 +91,8 @@ class Trainer:
         self.tensorboard_logging = tensorboard_logging
         self.input_dims_embed = input_dims_embed
         self.save_train_set_render = save_train_set_render
+        self.use_alphas_in_loss = use_alphas_in_loss
+        self.alphas_loss_weight = alphas_loss_weight
 
         self.K = None
         self.global_step = None
@@ -348,7 +352,7 @@ class Trainer:
         optimizer, render_kwargs_train,
         batch_rays, i, target_s,
     ):
-        rgb, disp, acc, extras = render(self.H, self.W, self.K,
+        rgb, disp, acc, alphas, extras = render(self.H, self.W, self.K,
             chunk=self.chunk, rays=batch_rays,
             verbose=i < 10, retraw=True,
             **render_kwargs_train
@@ -365,6 +369,10 @@ class Trainer:
             img_loss0 = img2mse(extras['rgb0'], target_s)
             loss = loss + img_loss0
             psnr0 = mse2psnr(img_loss0)
+
+        if self.use_alphas_in_loss and alphas is not None:
+            alphas_loss = self.alphas_loss_weight * (1 - torch.mean(alphas))
+            loss = loss + alphas_loss
 
         loss.backward()
         optimizer.step()
@@ -504,7 +512,7 @@ class Trainer:
         **kwargs
     ):
 
-        rgb_map, disp_map, acc_map, depth_map = None, None, None, None
+        rgb_map, disp_map, acc_map, depth_map, alphas_map = None, None, None, None, None
         raw = None
         weights = None
         z_vals = None
@@ -540,7 +548,7 @@ class Trainer:
                 raw, z_vals, rays_d, raw_noise_std, white_bkgd,
                 pytest=pytest
             )
-        return rgb_map, disp_map, acc_map, weights, depth_map, z_vals, weights, raw
+        return rgb_map, disp_map, acc_map, weights, depth_map, z_vals, weights, raw, alphas_map
 
     def sample_points(
         self,
