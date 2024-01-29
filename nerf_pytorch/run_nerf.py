@@ -29,7 +29,8 @@ def train(
 
 
 if __name__ == '__main__':
-    #torch.set_default_tensor_type('torch.cuda.FloatTensor')
+    if torch.cuda.is_available():
+        torch.set_default_tensor_type('torch.cuda.FloatTensor')
     parser = config_parser()
     args = parser.parse_args()
     trainer_config = {
