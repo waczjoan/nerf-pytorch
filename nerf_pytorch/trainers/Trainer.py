@@ -430,6 +430,7 @@ class Trainer:
         if self.render_test:
             render_poses = np.array(poses[i_test])
             render_poses = torch.Tensor(render_poses).to(self.device)
+            print(f"Check device {render_poses.get_device()}")
 
         hwf = self.cast_intrinsics_to_right_types(hwf=hwf)
         self.create_log_dir_and_copy_the_config_file()

@@ -156,6 +156,9 @@ def get_rays(H, W, K, c2w):
     j = j.t()
     dirs = torch.stack([(i - K[0][2]) / K[0][0], -(j - K[1][2]) / K[1][1], -torch.ones_like(i)], -1)
     # Rotate ray directions from camera frame to the world frame
+    print("Check devices")
+    print(f"dirs {dirs[..., np.newaxis, :].get_device()}")
+    print(f"c2w {c2w[:3, :3].get_device()}")
     rays_d = torch.sum(dirs[..., np.newaxis, :] * c2w[:3, :3],
                        -1)  # dot product, equals to: [c2w.dot(dir) for dir in dirs]
     # Translate camera frame's origin to the world frame. It is the origin of all rays.

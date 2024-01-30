@@ -64,6 +64,7 @@ def render(H, W, K, chunk=1024*32, rays=None, c2w=None, ndc=True,
     """
     if c2w is not None:
         # special case to render full image
+        print(f"Check c2w 2 {c2w.get_device()}")
         rays_o, rays_d = get_rays(H, W, K, c2w)
     else:
         # use provided ray batch
@@ -119,6 +120,7 @@ def render_path(render_poses, hwf, K, chunk, render_kwargs, gt_imgs=None, savedi
 
     t = time.time()
     for i, c2w in enumerate(tqdm(render_poses)):
+        print(f"Check devicde(c2w): {c2w.get_device()}")
         print(i, time.time() - t)
         t = time.time()
         rgb, disp, acc, alphas, _ = render(H, W, K, chunk=chunk, c2w=c2w[:3,:4], **render_kwargs)
